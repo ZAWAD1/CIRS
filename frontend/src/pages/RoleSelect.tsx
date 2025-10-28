@@ -17,9 +17,11 @@ const RoleSelect = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
 
-      <main className="flex flex-col md:flex-row justify-between items-center flex-grow px-8 py-10">
+      <main className="flex flex-col md:flex-row items-center justify-center gap-20 flex-grow px-6">
         <div className="max-w-md">
-          <h1 className="text-3xl font-bold mb-3">Select Your Role</h1>
+          <h1 className="text-3xl font-bold mb-4 text-center md:text-left">
+            Select Your Role
+          </h1>
 
           <form className="flex flex-col gap-3 text-gray-700">
             <label className="flex items-center gap-2">
@@ -45,17 +47,17 @@ const RoleSelect = () => {
 
           <button
             onClick={handleProceed}
-            className="mt-6 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
+            className="mt-6 bg-blue-600 text-white px-12 py-2 rounded hover:bg-blue-700 transition"
           >
             Proceed to Login
           </button>
         </div>
 
-        <div className="mt-10 md:mt-0">
+        <div className="flex justify-center md:justify-start">
           <img
             src="/Features.png"
             alt="Campus Rules"
-            className="w-[350px] rounded-lg shadow"
+            className="w-[320px] rounded-lg shadow"
           />
         </div>
       </main>
