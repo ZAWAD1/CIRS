@@ -1,0 +1,31 @@
+Planing
+    --Zawad
+
+Management
+    --Zawad
+
+UI
+    --Zawad
+    --Nafis
+    --Wohabi
+
+FrontEnd
+    --Zawad
+    --Nafis
+    --Jimam
+    --Wohabi
+    --Sagor
+
+Backend
+    --Nafis
+    --Jimam
+    --Wohabi
+    --Sagor
+
+Database & Testing
+    -- Sagor
+    -- Zawad
+
+Hosting
+    --Zawad
+
