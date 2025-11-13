@@ -43,7 +43,7 @@ Main Tables:
 
 ## 🧠 System Roles
 
-- **Student:** Report incidents, check status, view emergency contacts.
+- **Student:** Report incidents, check status, view emergency contacts, Check other reports made.
 - **Admin** Manage reports, update statuses, edit emergency contacts.
 
 ---
