@@ -59,5 +59,6 @@ Main Tables:
 6. **Student Status View Page**
 7. **Admin Dashboard**
 8. **Admin Edit Emergency Contact Page**
+9. **Student All Report View**
 
 ---
