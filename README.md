@@ -20,8 +20,7 @@ CIRS is a secure and user-friendly web platform that enables students and staff 
 
 | Layer              | Technology            |
 | ------------------ | --------------------- |
-| Frontend           | React.js, TailwindCSS |
-| Backend            | Node.js, Next.js      |
+| Front & Backend    | React.js, TailwindCSS |
 | Database           | Supabase              |
 | Hosting            | Vercel / Render       |
 | Version Control    | Git + GitHub          |
