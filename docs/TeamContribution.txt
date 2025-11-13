@@ -1,5 +1,6 @@
 Planing
     --Zawad
+    --Nafis
 
 Management
     --Zawad
@@ -21,9 +22,9 @@ Backend
     --Jimam
     --Wohabi
     --Sagor
+    -- Zawad
 
 Database & Testing
-    -- Sagor
     -- Zawad
 
 Hosting
