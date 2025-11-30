@@ -9,13 +9,13 @@ const Navbar = () => {
 
       <div className="flex items-center gap-4">
         <Link
-          to="/emergency"
+          to="/admin/emergency"
           className="text-gray-700 hover:text-blue-600 transition"
         >
           Emergency Contacts
         </Link>
         <Link
-          to="/home"
+          to="/"
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
         >
           LOGOUT
