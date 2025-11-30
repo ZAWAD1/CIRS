@@ -38,7 +38,9 @@ export default function IncidentForm() {
     setLoading(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
       let reporterId: number | null = null;
 
@@ -123,7 +125,6 @@ export default function IncidentForm() {
       });
 
       setAnonymous("anonymous");
-
     } finally {
       setLoading(false);
     }
@@ -133,8 +134,10 @@ export default function IncidentForm() {
     <div className="bg-white shadow px-8 py-8 rounded">
       <h2 className="text-xl font-bold mb-6">Report Details</h2>
 
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-10">
-
+      <form
+        onSubmit={handleSubmit}
+        className="grid grid-cols-1 md:grid-cols-2 gap-10"
+      >
         {/* LEFT */}
         <div className="space-y-4">
           <div>
@@ -144,7 +147,9 @@ export default function IncidentForm() {
               placeholder="Incident Title *"
               className="w-full border px-3 py-2 rounded"
               value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, title: e.target.value })
+              }
             />
           </div>
 
@@ -153,9 +158,25 @@ export default function IncidentForm() {
             <select
               className="w-full border px-3 py-2 rounded"
               value={formData.category}
-              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, category: e.target.value })
+              }
             >
               <option value="">Select category *</option>
+
+              {/* Added Categories */}
+              <option>Bullying or harassment</option>
+              <option>Sexual harassment or misconduct</option>
+              <option>Academic dishonesty or plagiarism</option>
+              <option>Copyright infringement</option>
+              <option>Cybercrime or digital misuse</option>
+              <option>Property damage or vandalism</option>
+              <option>Drug possession or use</option>
+              <option>Fraud, deception, or theft</option>
+              <option>Eve teasing or ragging</option>
+              <option>Violence, abuse, or possession of weapons</option>
+
+              {/* Old Options */}
               <option>Harassment</option>
               <option>Safety Issue</option>
               <option>Property Damage</option>
@@ -170,7 +191,9 @@ export default function IncidentForm() {
                 type="date"
                 className="w-full border px-3 py-2 rounded"
                 value={formData.date}
-                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, date: e.target.value })
+                }
               />
             </div>
 
@@ -180,7 +203,9 @@ export default function IncidentForm() {
                 type="time"
                 className="w-full border px-3 py-2 rounded"
                 value={formData.time}
-                onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, time: e.target.value })
+                }
               />
             </div>
           </div>
@@ -192,7 +217,9 @@ export default function IncidentForm() {
               placeholder="Location"
               className="w-full border px-3 py-2 rounded"
               value={formData.location}
-              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, location: e.target.value })
+              }
             />
           </div>
         </div>
@@ -229,7 +256,10 @@ export default function IncidentForm() {
               accept="image/*"
               className="w-full border px-3 py-2 rounded"
               onChange={(e) =>
-                setFormData({ ...formData, image: e.target.files?.[0] ?? null })
+                setFormData({
+                  ...formData,
+                  image: e.target.files?.[0] ?? null,
+                })
               }
             />
           </div>
