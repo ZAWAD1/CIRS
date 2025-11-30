@@ -10,6 +10,7 @@ import MyReports from "./pages/MyReports";
 import StudentAllReport from "./pages/StudentAllReport";
 import StudentDashboard from "./pages/StudentDashboard";
 import StudentEmergencyContact from "./pages/StudentEmergencyContact";
+import StudentEmergencyContact from "./pages/StudentEmergencyContact";
 import EmergencyContacts from "./pages/EmergencyContacts";
 
 function App() {
@@ -35,9 +36,7 @@ function App() {
 
       {/* Student Dashboard */}
       <Route path="/student/dashboard" element={<StudentDashboard />} />
-
-      {/* Emergency Contact Pages */}
-      <Route path="/emergency" element={<StudentEmergencyContact />} />
+      <Route path="/student/emergency" element={<StudentEmergencyContact />} />
       <Route path="/home-emergency" element={<EmergencyContacts />} />
 
       {/* Duplicate Removed */}

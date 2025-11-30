@@ -20,8 +20,7 @@ CIRS is a secure and user-friendly web platform that enables students and staff 
 
 | Layer              | Technology            |
 | ------------------ | --------------------- |
-| Frontend           | React.js, TailwindCSS |
-| Backend            | Node.js, Next.js      |
+| Front & Backend    | React.js, TailwindCSS |
 | Database           | Supabase              |
 | Hosting            | Vercel / Render       |
 | Version Control    | Git + GitHub          |
@@ -44,7 +43,7 @@ Main Tables:
 
 ## 🧠 System Roles
 
-- **Student:** Report incidents, check status, view emergency contacts.
+- **Student:** Report incidents, check status, view emergency contacts, Check other reports made.
 - **Admin** Manage reports, update statuses, edit emergency contacts.
 
 ---
@@ -59,5 +58,6 @@ Main Tables:
 6. **Student Status View Page**
 7. **Admin Dashboard**
 8. **Admin Edit Emergency Contact Page**
+9. **Student All Report View**
 
 ---
