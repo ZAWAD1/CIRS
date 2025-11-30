@@ -1,7 +1,16 @@
 import React, { useState } from "react";
+import type { ChangeEvent, FormEvent } from "react";
 import { supabase } from "../supabaseClient";
 
-type FormState = {
+import { 
+  FaFacebook,
+  FaLinkedin,
+  FaYoutube,
+  FaInstagram
+} from "react-icons/fa";
+
+// -------- TYPE FOR FORM DATA --------
+interface FormDataType {
   title: string;
   category: string;
   date: string;
@@ -9,13 +18,13 @@ type FormState = {
   location: string;
   details: string;
   image: File | null;
-};
+}
 
-export default function IncidentForm() {
+export default function IncidentFormPage() {
   const [anonymous, setAnonymous] = useState<"anonymous" | "show">("anonymous");
   const [loading, setLoading] = useState(false);
 
-  const [formData, setFormData] = useState<FormState>({
+  const [formData, setFormData] = useState<FormDataType>({
     title: "",
     category: "",
     date: "",
@@ -25,269 +34,279 @@ export default function IncidentForm() {
     image: null,
   });
 
-  const bucketName = "incident-images";
+  // -------- HANDLE FILE UPLOAD --------
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setFormData({ ...formData, image: file });
+  };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // -------- FORM SUBMIT + SUPABASE INSERT --------
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setLoading(true);
 
-    if (!formData.title || !formData.category || !formData.date) {
-      alert("Please fill required fields (title, category, date).");
+    let image_url = null;
+
+    // -------------------- IMAGE UPLOAD --------------------
+    if (formData.image) {
+      const fileExt = formData.image.name.split(".").pop();
+      const fileName = `${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("incident_images") // bucket name
+        .upload(fileName, formData.image);
+
+      if (uploadError) {
+        alert("Image upload failed!");
+        console.log(uploadError);
+      } else {
+        const { data } = supabase.storage
+          .from("incident_images")
+          .getPublicUrl(fileName);
+
+        image_url = data.publicUrl;
+      }
+    }
+
+    // -------------------- INSERT INTO SUPABASE --------------------
+    const { error } = await supabase.from("incident_reports").insert([
+      {
+        title: formData.title,
+        category: formData.category,
+        incident_date: formData.date,
+        incident_time: formData.time,
+        location: formData.location,
+        details: formData.details,
+        image_url: image_url,
+        is_anonymous: anonymous === "anonymous",
+        created_at: new Date(),
+      },
+    ]);
+
+    setLoading(false);
+
+    if (error) {
+      console.log(error);
+      alert("Something went wrong!");
       return;
     }
 
-    setLoading(true);
+    alert("Incident Submitted Successfully ✔");
 
-    try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      let reporterId: number | null = null;
-
-      if (user && anonymous === "show") {
-        const { data: existingUser } = await supabase
-          .from("users")
-          .select("user_id")
-          .eq("email", user.email)
-          .maybeSingle();
-
-        if (existingUser) {
-          reporterId = existingUser.user_id;
-        } else {
-          const { data: newUser } = await supabase
-            .from("users")
-            .insert({
-              full_name: user.user_metadata?.full_name || "Unnamed User",
-              email: user.email,
-              role: "student",
-            })
-            .select("user_id")
-            .single();
-
-          reporterId = newUser?.user_id || null;
-        }
-      }
-
-      const { data: report, error: reportError } = await supabase
-        .from("incident_reports")
-        .insert({
-          reporter_id: anonymous === "anonymous" ? null : reporterId,
-          is_anonymous: anonymous === "anonymous",
-          title: formData.title,
-          category: formData.category,
-          description: formData.details,
-          date_of_incident: formData.date,
-          time_of_incident: formData.time,
-          location: formData.location,
-          status: "New",
-        })
-        .select("report_id")
-        .single();
-
-      if (reportError || !report) {
-        alert("❌ Failed to insert report");
-        return;
-      }
-
-      const reportId = report.report_id;
-
-      if (formData.image) {
-        const ext = formData.image.name.split(".").pop();
-        const fileName = `${reportId}_${Date.now()}.${ext}`;
-
-        const upload = await supabase.storage
-          .from(bucketName)
-          .upload(fileName, formData.image);
-
-        if (!upload.error) {
-          const { data: url } = supabase.storage
-            .from(bucketName)
-            .getPublicUrl(fileName);
-
-          await supabase.from("attachments").insert({
-            report_id: reportId,
-            file_url: url.publicUrl,
-            file_type: formData.image.type,
-          });
-        }
-      }
-
-      alert("✔ Incident Submitted Successfully");
-
-      setFormData({
-        title: "",
-        category: "",
-        date: "",
-        time: "",
-        location: "",
-        details: "",
-        image: null,
-      });
-
-      setAnonymous("anonymous");
-    } finally {
-      setLoading(false);
-    }
+    // RESET FORM
+    setFormData({
+      title: "",
+      category: "",
+      date: "",
+      time: "",
+      location: "",
+      details: "",
+      image: null,
+    });
   };
 
   return (
-    <div className="bg-white shadow px-8 py-8 rounded">
-      <h2 className="text-xl font-bold mb-6">Report Details</h2>
-
-      <form
-        onSubmit={handleSubmit}
-        className="grid grid-cols-1 md:grid-cols-2 gap-10"
-      >
-        {/* LEFT */}
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm mb-1">Incident Title</label>
-            <input
-              type="text"
-              placeholder="Incident Title *"
-              className="w-full border px-3 py-2 rounded"
-              value={formData.title}
-              onChange={(e) =>
-                setFormData({ ...formData, title: e.target.value })
-              }
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm mb-1">Incident Category</label>
-            <select
-              className="w-full border px-3 py-2 rounded"
-              value={formData.category}
-              onChange={(e) =>
-                setFormData({ ...formData, category: e.target.value })
-              }
-            >
-              <option value="">Select category *</option>
-
-              {/* Added Categories */}
-              <option>Bullying or harassment</option>
-              <option>Sexual harassment or misconduct</option>
-              <option>Academic dishonesty or plagiarism</option>
-              <option>Copyright infringement</option>
-              <option>Cybercrime or digital misuse</option>
-              <option>Property damage or vandalism</option>
-              <option>Drug possession or use</option>
-              <option>Fraud, deception, or theft</option>
-              <option>Eve teasing or ragging</option>
-              <option>Violence, abuse, or possession of weapons</option>
-
-              {/* Old Options */}
-              <option>Harassment</option>
-              <option>Safety Issue</option>
-              <option>Property Damage</option>
-              <option>Other</option>
-            </select>
-          </div>
-
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <label className="block text-sm mb-1">Incident Date</label>
-              <input
-                type="date"
-                className="w-full border px-3 py-2 rounded"
-                value={formData.date}
-                onChange={(e) =>
-                  setFormData({ ...formData, date: e.target.value })
-                }
-              />
-            </div>
-
-            <div className="w-40">
-              <label className="block text-sm mb-1">Time</label>
-              <input
-                type="time"
-                className="w-full border px-3 py-2 rounded"
-                value={formData.time}
-                onChange={(e) =>
-                  setFormData({ ...formData, time: e.target.value })
-                }
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm mb-1">Location</label>
-            <input
-              type="text"
-              placeholder="Location"
-              className="w-full border px-3 py-2 rounded"
-              value={formData.location}
-              onChange={(e) =>
-                setFormData({ ...formData, location: e.target.value })
-              }
-            />
-          </div>
+    <div className="min-h-screen flex flex-col bg-gray-100">
+      {/* ---------------- NAVBAR ---------------- */}
+      <nav className="flex justify-between items-center px-10 py-4 bg-white shadow-sm border-b">
+        <div className="flex items-center gap-3">
+          <img src="/Ulab-logo.png" alt="ULAB Logo" className="h-12" />
         </div>
 
-        {/* RIGHT */}
-        <div className="space-y-4">
-          <div>
-            <p className="font-medium text-sm">Stay Anonymous?</p>
-            <div className="flex gap-6 mt-2">
-              <label className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  checked={anonymous === "anonymous"}
-                  onChange={() => setAnonymous("anonymous")}
-                />
-                <span className="text-sm">Anonymous</span>
-              </label>
-
-              <label className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  checked={anonymous === "show"}
-                  onChange={() => setAnonymous("show")}
-                />
-                <span className="text-sm">Show Name</span>
-              </label>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm mb-1">Upload Image</label>
-            <input
-              type="file"
-              accept="image/*"
-              className="w-full border px-3 py-2 rounded"
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  image: e.target.files?.[0] ?? null,
-                })
-              }
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm mb-1">Incident Details</label>
-            <textarea
-              rows={6}
-              placeholder="Enter details..."
-              className="w-full border px-3 py-2 rounded"
-              value={formData.details}
-              onChange={(e) =>
-                setFormData({ ...formData, details: e.target.value })
-              }
-            />
-          </div>
-        </div>
-
-        <div className="col-span-2">
-          <button
-            type="submit"
-            className="w-56 mx-auto block bg-blue-600 text-white py-2 rounded text-sm"
-            disabled={loading}
+        <div className="flex items-center gap-8 text-sm">
+          <a
+            href="/report-incident"
+            className="text-blue-600 font-semibold border-b-2 border-blue-600 pb-1"
           >
-            {loading ? "Submitting..." : "SUBMIT"}
+            Report Incident
+          </a>
+
+          <a href="/student/my-reports" className="text-gray-700 hover:text-blue-600">
+            My Reports
+          </a>
+
+          <a href="/emergency" className="text-gray-700 hover:text-blue-600">
+            Emergency Contacts
+          </a>
+
+          <button className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition font-medium shadow-sm">
+            LOGOUT
           </button>
         </div>
-      </form>
+      </nav>
+
+      {/* ---------------- FORM BODY ---------------- */}
+      <div className="max-w-4xl mx-auto bg-white p-8 shadow mt-10 rounded">
+        <h2 className="text-xl font-bold mb-6">Report Details</h2>
+
+        <form
+          onSubmit={handleSubmit}
+          className="grid grid-cols-1 md:grid-cols-2 gap-10"
+        >
+          {/* LEFT SIDE */}
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm mb-1">Incident Title</label>
+              <input
+                type="text"
+                className="w-full border px-3 py-2 rounded"
+                value={formData.title}
+                onChange={(e) =>
+                  setFormData({ ...formData, title: e.target.value })
+                }
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm mb-1">Incident Category</label>
+              <select
+                className="w-full border px-3 py-2 rounded"
+                value={formData.category}
+                onChange={(e) =>
+                  setFormData({ ...formData, category: e.target.value })
+                }
+                required
+              >
+                <option value="">Select category *</option>
+
+                <option>Bullying or harassment</option>
+                <option>Sexual harassment or misconduct</option>
+                <option>Academic dishonesty or plagiarism</option>
+                <option>Copyright infringement</option>
+                <option>Cybercrime or digital misuse</option>
+                <option>Property damage or vandalism</option>
+                <option>Drug possession or use</option>
+                <option>Fraud, deception, or theft</option>
+                <option>Eve teasing or ragging</option>
+                <option>Violence, abuse, or possession of weapons</option>
+
+                <option>Other</option>
+              </select>
+            </div>
+
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <label className="block text-sm mb-1">Incident Date</label>
+                <input
+                  type="date"
+                  className="w-full border px-3 py-2 rounded"
+                  value={formData.date}
+                  onChange={(e) =>
+                    setFormData({ ...formData, date: e.target.value })
+                  }
+                  required
+                />
+              </div>
+
+              <div className="w-40">
+                <label className="block text-sm mb-1">Time</label>
+                <input
+                  type="time"
+                  className="w-full border px-3 py-2 rounded"
+                  value={formData.time}
+                  onChange={(e) =>
+                    setFormData({ ...formData, time: e.target.value })
+                  }
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm mb-1">Location</label>
+              <input
+                type="text"
+                className="w-full border px-3 py-2 rounded"
+                value={formData.location}
+                onChange={(e) =>
+                  setFormData({ ...formData, location: e.target.value })
+                }
+                required
+              />
+            </div>
+          </div>
+
+          {/* RIGHT SIDE */}
+          <div className="space-y-4">
+            <div>
+              <p className="font-medium text-sm">Stay Anonymous?</p>
+              <div className="flex gap-6 mt-2">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    checked={anonymous === "anonymous"}
+                    onChange={() => setAnonymous("anonymous")}
+                  />
+                  <span className="text-sm">Anonymous</span>
+                </label>
+
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    checked={anonymous === "show"}
+                    onChange={() => setAnonymous("show")}
+                  />
+                  <span className="text-sm">Show Name</span>
+                </label>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm mb-1">Upload Image</label>
+              <input
+                type="file"
+                accept="image/*"
+                className="w-full border px-3 py-2 rounded"
+                onChange={handleFileChange}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm mb-1">Incident Details</label>
+              <textarea
+                rows={6}
+                className="w-full border px-3 py-2 rounded"
+                value={formData.details}
+                onChange={(e) =>
+                  setFormData({ ...formData, details: e.target.value })
+                }
+                required
+              />
+            </div>
+          </div>
+
+          <div className="col-span-2">
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-56 mx-auto block bg-blue-600 text-white py-2 rounded text-sm"
+            >
+              {loading ? "Submitting..." : "SUBMIT"}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* ---------------- FOOTER ---------------- */}
+      <footer className="border-t bg-white text-gray-600 mt-16 p-6">
+        <div className="max-w-7xl mx-auto flex justify-between">
+          <div className="text-sm">
+            University of Liberal Arts Bangladesh
+            <div className="flex gap-4 mt-4 text-gray-500 text-lg">
+              <FaFacebook />
+              <FaLinkedin />
+              <FaYoutube />
+              <FaInstagram />
+            </div>
+          </div>
+
+          <div className="text-xs text-right">
+            <p>Property Of Team</p>
+            <p className="font-bold">DUCKLINGS</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
