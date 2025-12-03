@@ -7,6 +7,8 @@ import StudentEmergencyContact from "./pages/StudentEmergencyContact";
 import EmergencyContacts from "./pages/EmergencyContacts";
 import AdminDashboard from "./pages/AdminDashboard";
 import EmergencyContactsAdmin from "./pages/EmergencyContactsAdmin";
+import AdminLogin from "./pages/AdminLogin";
+//import AdminDashboard from "./pages/AdminDashboard";
 
 function App() {
   return (
@@ -19,6 +21,7 @@ function App() {
       <Route path="/home-emergency" element={<EmergencyContacts />} />
       <Route path="/admin/dashboard" element={<AdminDashboard />} />
       <Route path="/admin/emergency" element={<EmergencyContactsAdmin />} />
+      <Route path="/login/admin" element={<AdminLogin />} />
     </Routes>
   );
 }
