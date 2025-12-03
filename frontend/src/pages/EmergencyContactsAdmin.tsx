@@ -1,21 +1,18 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
-// 1. Update the import here
 import { type EmergencyContactAdmin, type ContactType } from '../types';
 import Footer from '../components/Footer';
 
 const CONTACT_TYPES: ContactType[] = ['Security', 'Counseling', 'Admin', 'Medical'];
 
 export default function EmergencyContacts() {
-  // 2. Update state type here
   const [contacts, setContacts] = useState<EmergencyContactAdmin[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [editingId, setEditingId] = useState<number | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   
-  // 3. Update Partial type here
   const [formData, setFormData] = useState<Partial<EmergencyContactAdmin>>({
     name: '',
     phone: '',
@@ -33,7 +30,6 @@ export default function EmergencyContacts() {
     if (error) {
       console.error('Error fetching contacts:', error);
     } else if (data) {
-      // 4. Update casting here
       setContacts(data as EmergencyContactAdmin[]);
     }
     setLoading(false);
@@ -69,7 +65,6 @@ export default function EmergencyContacts() {
     setEditingId(null);
   };
 
-  // 5. Update argument type here
   const handleEditClick = (contact: EmergencyContactAdmin) => {
     setFormData(contact);
     setEditingId(contact.contact_id);

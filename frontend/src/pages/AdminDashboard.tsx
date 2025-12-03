@@ -4,7 +4,6 @@ import { type IncidentReport } from '../types';
 import Navbar from '../components/NavbarForAdmin';
 import Footer from '../components/Footer';
 
-// Categories strictly from your list
 const CATEGORIES = [
   "Bullying or harassment",
   "Sexual harassment or misconduct",
@@ -22,21 +21,16 @@ const AdminDashboard = () => {
   const [reports, setReports] = useState<IncidentReport[]>([]);
   const [loading, setLoading] = useState(true);
   
-  // Filters
   const [categoryFilter, setCategoryFilter] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('');
 
-  // Stats State
   const [stats, setStats] = useState({ total: 0, unresolved: 0, investigating: 0, resolved: 0 });
 
-  // UI State for "View Details" (Store IDs of expanded reports)
   const [expandedReportIds, setExpandedReportIds] = useState<Set<number>>(new Set());
 
-  // --- Fetch Data ---
   const fetchData = async () => {
     setLoading(true);
     
-    // 1. Base Query with Joins
     let query = supabase
       .from('incident_reports')
       .select(`
@@ -44,11 +38,9 @@ const AdminDashboard = () => {
         users (full_name, student_id),
         attachments (file_url, file_type)
       `)
-      .order('created_at', { ascending: false }); // Latest first
+      .order('created_at', { ascending: false }); 
 
-    // 2. Apply Filters if selected
     if (categoryFilter) query = query.eq('category', categoryFilter);
-    // Note: Map UI "Unresolved" to DB "New" if needed, or keep consistent
     if (statusFilter) query = query.eq('status', statusFilter === 'Unresolved' ? 'New' : statusFilter);
 
     const { data, error } = await query;
@@ -59,8 +51,6 @@ const AdminDashboard = () => {
       setReports(data as unknown as IncidentReport[]);
     }
 
-    // 3. Fetch Stats (Independent of filters, usually stats show global numbers)
-    // We can do this with a separate simple query to avoid complex counting on client side
     const { data: allReports } = await supabase.from('incident_reports').select('status');
     
     if (allReports) {
@@ -76,15 +66,12 @@ const AdminDashboard = () => {
     setLoading(false);
   };
 
-  // Run fetch when filters change or on mount
   useEffect(() => {
     fetchData();
   }, [categoryFilter, statusFilter]);
 
-  // --- Handlers ---
 
   const handleStatusChange = async (reportId: number, newStatus: string) => {
-    // 1. Update in DB
     const { error } = await supabase
       .from('incident_reports')
       .update({ status: newStatus === 'Unresolved' ? 'New' : newStatus }) // Handle mapping
@@ -93,7 +80,6 @@ const AdminDashboard = () => {
     if (error) {
       alert("Failed to update status");
     } else {
-      // 2. Refresh data to show updates
       fetchData();
     }
   };
@@ -114,7 +100,6 @@ const AdminDashboard = () => {
     fetchData();
   };
 
-  // Helper to count words
   const getWordCount = (text: string) => text.trim().split(/\s+/).length;
 
   return (

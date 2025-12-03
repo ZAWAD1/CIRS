@@ -5,6 +5,8 @@ import StudentAllReport from "./pages/StudentAllReport";
 import StudentDashboard from "./pages/StudentDashboard";
 import StudentEmergencyContact from "./pages/StudentEmergencyContact";
 import EmergencyContacts from "./pages/EmergencyContacts";
+import AdminDashboard from "./pages/AdminDashboard";
+import EmergencyContactsAdmin from "./pages/EmergencyContactsAdmin";
 
 function App() {
   return (
@@ -15,6 +17,8 @@ function App() {
       <Route path="/student/dashboard" element={<StudentDashboard />} />
       <Route path="/student/emergency" element={<StudentEmergencyContact />} />
       <Route path="/home-emergency" element={<EmergencyContacts />} />
+      <Route path="/admin/dashboard" element={<AdminDashboard />} />
+      <Route path="/admin/emergency" element={<EmergencyContactsAdmin />} />
     </Routes>
   );
 }
