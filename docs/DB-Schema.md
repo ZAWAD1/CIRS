@@ -14,7 +14,6 @@ CREATE TABLE users (
 user_id SERIAL PRIMARY KEY,
 full_name VARCHAR(100) NOT NULL,
 email VARCHAR(100) UNIQUE NOT NULL,
-password_hash TEXT NOT NULL,
 role user_role NOT NULL,
 student_id VARCHAR(20),
 department VARCHAR(50),
