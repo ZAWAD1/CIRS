@@ -1,0 +1,84 @@
+import { useState } from "react";
+import { supabase } from "../supabaseClient";
+import { useNavigate } from "react-router-dom";
+import NavforSLI from "../components/NavforSLI";
+import Footer from "../components/Footer";
+
+const StudentLogin = () => {
+  const navigate = useNavigate();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      setError(error.message);
+      return;
+    }
+
+    // Redirect to student dashboard (correct place)
+    navigate("/student/dashboard");
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      <NavforSLI />
+
+      {/* Middle section */}
+      <div className="flex flex-1 justify-center items-center">
+        <div className="w-full max-w-sm">
+          <h2 className="text-xl font-bold mb-1">SIGN IN</h2>
+          <p className="text-gray-400 text-sm mb-6">
+            signin to your student dashboard
+          </p>
+
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <label className="block text-sm font-semibold">EMAIL</label>
+              <input
+                type="email"
+                className="w-full border-b p-2 outline-none"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold">PASSWORD</label>
+              <input
+                type="password"
+                className="w-full border-b p-2 outline-none"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+
+            {error && <p className="text-red-500 text-sm">{error}</p>}
+
+            <button
+              type="submit"
+              className="w-full bg-blue-600 text-white py-2 rounded mt-4 shadow"
+            >
+              SIGN IN
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <Footer />
+    </div>
+  );
+};
+
+export default StudentLogin;

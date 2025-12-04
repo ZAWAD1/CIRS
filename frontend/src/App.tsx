@@ -9,6 +9,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import EmergencyContactsAdmin from "./pages/EmergencyContactsAdmin";
 import AdminLogin from "./pages/AdminLogin";
 import StudentSignup from "./pages/StudentSignup";
+import StudentLogin from "./pages/StudentLogin";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
       <Route path="/admin/emergency" element={<EmergencyContactsAdmin />} />
       <Route path="/login/admin" element={<AdminLogin />} />
       <Route path="/signup/student" element={<StudentSignup />} />
+      <Route path="/login/student" element={<StudentLogin />} />
     </Routes>
   );
 }
