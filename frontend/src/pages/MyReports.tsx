@@ -1,11 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
-import {
-  FaFacebook,
-  FaLinkedin,
-  FaYoutube,
-  FaInstagram,
-} from "react-icons/fa";
+import Footer from "../components/Footer";
+import NavforMRF from "../components/NavforMRF";
 
 interface ReportType {
   report_id: number;
@@ -42,33 +38,7 @@ export default function MyReportsPage() {
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
 
-      {/* ---------------- NAVBAR ---------------- */}
-      <nav className="flex justify-between items-center px-10 py-4 bg-white shadow-sm border-b">
-        <div className="flex items-center gap-3">
-          <img src="/Ulab-logo.png" alt="ULAB Logo" className="h-12" />
-        </div>
-
-        <div className="flex items-center gap-8 text-sm">
-          <a href="/report-incident" className="text-gray-700 hover:text-blue-600">
-            Report Incident
-          </a>
-
-          <a
-            href="/student/my-reports"
-            className="text-blue-600 font-semibold border-b-2 border-blue-600 pb-1"
-          >
-            My Reports
-          </a>
-
-          <a href="/emergency" className="text-gray-700 hover:text-blue-600">
-            Emergency Contacts
-          </a>
-
-          <button className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition font-medium shadow-sm">
-            LOGOUT
-          </button>
-        </div>
-      </nav>
+      <NavforMRF/>
 
       {/* ---------------- BODY ---------------- */}
       <div className="max-w-6xl mx-auto bg-white p-8 shadow mt-10 rounded mb-16">
@@ -144,26 +114,7 @@ export default function MyReportsPage() {
       </div>
 
       {/* ---------------- FOOTER ---------------- */}
-      <footer className="border-t bg-white text-gray-600 p-6">
-        <div className="max-w-7xl mx-auto flex justify-between">
-
-          <div className="text-sm">
-            University of Liberal Arts Bangladesh
-            <div className="flex gap-4 mt-4 text-gray-500">
-              <FaFacebook />
-              <FaLinkedin />
-              <FaYoutube />
-              <FaInstagram />
-            </div>
-          </div>
-
-          <div className="text-xs text-right">
-            <p>Property Of Team</p>
-            <p className="font-bold">DUCKLINGS</p>
-          </div>
-
-        </div>
-      </footer>
+      <Footer/>
     </div>
   );
 }

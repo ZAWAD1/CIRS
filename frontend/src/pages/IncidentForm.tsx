@@ -1,13 +1,10 @@
 import React, { useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import { supabase } from "../supabaseClient";
+import Footer from "../components/Footer";
+import NavforIRF from "../components/NavforIRF";
 
-import { 
-  FaFacebook,
-  FaLinkedin,
-  FaYoutube,
-  FaInstagram
-} from "react-icons/fa";
+
 
 // -------- TYPE FOR FORM DATA --------
 interface FormDataType {
@@ -107,33 +104,7 @@ export default function IncidentFormPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
-      {/* ---------------- NAVBAR ---------------- */}
-      <nav className="flex justify-between items-center px-10 py-4 bg-white shadow-sm border-b">
-        <div className="flex items-center gap-3">
-          <img src="/Ulab-logo.png" alt="ULAB Logo" className="h-12" />
-        </div>
-
-        <div className="flex items-center gap-8 text-sm">
-          <a
-            href="/report-incident"
-            className="text-blue-600 font-semibold border-b-2 border-blue-600 pb-1"
-          >
-            Report Incident
-          </a>
-
-          <a href="/student/my-reports" className="text-gray-700 hover:text-blue-600">
-            My Reports
-          </a>
-
-          <a href="/emergency" className="text-gray-700 hover:text-blue-600">
-            Emergency Contacts
-          </a>
-
-          <button className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition font-medium shadow-sm">
-            LOGOUT
-          </button>
-        </div>
-      </nav>
+      <NavforIRF/>
 
       {/* ---------------- FORM BODY ---------------- */}
       <div className="max-w-4xl mx-auto bg-white p-8 shadow mt-10 rounded">
@@ -289,24 +260,7 @@ export default function IncidentFormPage() {
       </div>
 
       {/* ---------------- FOOTER ---------------- */}
-      <footer className="border-t bg-white text-gray-600 mt-16 p-6">
-        <div className="max-w-7xl mx-auto flex justify-between">
-          <div className="text-sm">
-            University of Liberal Arts Bangladesh
-            <div className="flex gap-4 mt-4 text-gray-500 text-lg">
-              <FaFacebook />
-              <FaLinkedin />
-              <FaYoutube />
-              <FaInstagram />
-            </div>
-          </div>
-
-          <div className="text-xs text-right">
-            <p>Property Of Team</p>
-            <p className="font-bold">DUCKLINGS</p>
-          </div>
-        </div>
-      </footer>
+<Footer/>
     </div>
   );
 }

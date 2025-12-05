@@ -10,7 +10,6 @@ import MyReports from "./pages/MyReports";
 import StudentAllReport from "./pages/StudentAllReport";
 import StudentDashboard from "./pages/StudentDashboard";
 import StudentEmergencyContact from "./pages/StudentEmergencyContact";
-import StudentEmergencyContact from "./pages/StudentEmergencyContact";
 import EmergencyContacts from "./pages/EmergencyContacts";
 
 function App() {
