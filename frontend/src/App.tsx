@@ -10,6 +10,7 @@ import EmergencyContactsAdmin from "./pages/EmergencyContactsAdmin";
 import AdminLogin from "./pages/AdminLogin";
 import StudentSignup from "./pages/StudentSignup";
 import StudentLogin from "./pages/StudentLogin";
+import AdminSignup from "./pages/AdminSignup";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
       <Route path="/login/admin" element={<AdminLogin />} />
       <Route path="/signup/student" element={<StudentSignup />} />
       <Route path="/login/student" element={<StudentLogin />} />
+      <Route path="/signup/admin" element={<AdminSignup />} />
     </Routes>
   );
 }

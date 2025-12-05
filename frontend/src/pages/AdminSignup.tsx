@@ -4,15 +4,13 @@ import { useNavigate } from "react-router-dom";
 import NavforSSU from "../components/NavforSSU";
 import Footer from "../components/Footer";
 
-const StudentSignup = () => {
+const AdminSignup = () => {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
     full_name: "",
     email: "",
     password: "",
-    student_id: "",
-    department: "",
     phone: "",
   });
 
@@ -47,15 +45,13 @@ const StudentSignup = () => {
       return;
     }
 
-    // 2. Insert user profile into "users" table
+    // 2. Insert admin profile into users table
     const { error: insertError } = await supabase.from("users").insert([
       {
-        id: userId, // <-- IMPORTANT!
+        id: userId, // auth user ID
         full_name: form.full_name,
         email: form.email,
-        role: "student",
-        student_id: form.student_id,
-        department: form.department,
+        role: "admin",
         phone: form.phone,
         created_at: new Date().toISOString(),
       },
@@ -67,8 +63,8 @@ const StudentSignup = () => {
       return;
     }
 
-    // 3. Redirect to student dashboard
-    navigate("/student/dashboard");
+    // 3. Redirect to admin dashboard
+    navigate("/admin/dashboard");
   };
 
   return (
@@ -80,9 +76,9 @@ const StudentSignup = () => {
           onSubmit={handleSubmit}
           className="grid grid-cols-2 gap-10 w-[60%]"
         >
-          <h2 className="col-span-2 text-xl font-semibold">Sign up</h2>
+          <h2 className="col-span-2 text-xl font-semibold">Admin Sign up</h2>
           <p className="col-span-2 text-gray-400 text-sm -mt-4">
-            sign up to visit student dashboard
+            Sign up as an admin
           </p>
 
           <div>
@@ -110,17 +106,6 @@ const StudentSignup = () => {
           </div>
 
           <div>
-            <label className="text-xs font-semibold">STUDENT ID</label>
-            <input
-              type="text"
-              name="student_id"
-              value={form.student_id}
-              onChange={handleChange}
-              className="w-full border-b outline-none"
-            />
-          </div>
-
-          <div>
             <label className="text-xs font-semibold">PASSWORD</label>
             <input
               type="password"
@@ -129,17 +114,6 @@ const StudentSignup = () => {
               onChange={handleChange}
               className="w-full border-b outline-none"
               required
-            />
-          </div>
-
-          <div>
-            <label className="text-xs font-semibold">DEPARTMENT</label>
-            <input
-              type="text"
-              name="department"
-              value={form.department}
-              onChange={handleChange}
-              className="w-full border-b outline-none"
             />
           </div>
 
@@ -173,4 +147,4 @@ const StudentSignup = () => {
   );
 };
 
-export default StudentSignup;
+export default AdminSignup;

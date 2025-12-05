@@ -15,26 +15,52 @@ const AdminLogin = () => {
     e.preventDefault();
     setError("");
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    // 1. Login with Supabase Auth
+    const { data: authData, error: authError } =
+      await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (error) {
+    if (authError) {
       setError("Invalid email or password");
       return;
     }
 
-    // If login is successful → this IS your admin
+    const userId = authData.user?.id;
+    if (!userId) {
+      setError("Login failed. Try again.");
+      return;
+    }
+
+    // 2. Fetch the user's role
+    const { data: profile, error: profileError } = await supabase
+      .from("users")
+      .select("role")
+      .eq("id", userId)
+      .single();
+
+    if (profileError || !profile) {
+      setError("Profile not found");
+      return;
+    }
+
+    // 3. Check if user is admin
+    if (profile.role !== "admin") {
+      // Kick them out immediately
+      await supabase.auth.signOut();
+      setError("You are not authorized to access admin panel");
+      return;
+    }
+
+    // 4. Everything OK → redirect to admin dashboard
     navigate("/admin/dashboard");
   };
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
-      {/* Navbar stays at the top */}
       <NavforAL />
 
-      {/* Center only the login section */}
       <div className="flex flex-1 items-center justify-center">
         <div className="w-full max-w-sm p-8">
           <h2 className="text-xl font-bold">SIGN IN</h2>
@@ -50,6 +76,7 @@ const AdminLogin = () => {
                 className="w-full border-b p-2 outline-none focus:border-blue-500"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                required
               />
             </div>
 
@@ -60,6 +87,7 @@ const AdminLogin = () => {
                 className="w-full border-b p-2 outline-none focus:border-blue-500"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
               />
             </div>
 
@@ -75,7 +103,6 @@ const AdminLogin = () => {
         </div>
       </div>
 
-      {/* Footer stays at the bottom */}
       <Footer />
     </div>
   );

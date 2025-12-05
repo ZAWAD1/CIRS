@@ -15,17 +15,42 @@ const StudentLogin = () => {
     e.preventDefault();
     setError("");
 
-    const { error } = await supabase.auth.signInWithPassword({
+    // 1. Login
+    const { data, error: loginError } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
-    if (error) {
-      setError(error.message);
+    if (loginError) {
+      setError(loginError.message);
       return;
     }
 
-    // Redirect to student dashboard (correct place)
+    const user = data.user;
+    if (!user) {
+      setError("Login failed. Try again.");
+      return;
+    }
+
+    // 2. Fetch the student's profile from your 'users' table
+    const { data: profile, error: profileError } = await supabase
+      .from("users")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    if (profileError || !profile) {
+      setError("Profile not found.");
+      return;
+    }
+
+    // 3. Block if not student
+    if (profile.role !== "student") {
+      setError("This login is only for students.");
+      return;
+    }
+
+    // 4. Redirect to student dashboard
     navigate("/student/dashboard");
   };
 
@@ -33,7 +58,6 @@ const StudentLogin = () => {
     <div className="min-h-screen flex flex-col">
       <NavforSLI />
 
-      {/* Middle section */}
       <div className="flex flex-1 justify-center items-center">
         <div className="w-full max-w-sm">
           <h2 className="text-xl font-bold mb-1">SIGN IN</h2>
