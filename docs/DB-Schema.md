@@ -7,15 +7,14 @@ CREATE TYPE report_status AS ENUM ('New', 'Investigating', 'Resolved');
 CREATE TYPE contact_type AS ENUM ('Security', 'Counseling', 'Admin', 'Medical');
 
 -- ===========================================================
--- USERS TABLE
+-- USERS PROFILE TABLE (LINKED TO SUPABASE AUTH)
 -- ===========================================================
 
 CREATE TABLE users (
-user_id SERIAL PRIMARY KEY,
+id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
 full_name VARCHAR(100) NOT NULL,
 email VARCHAR(100) UNIQUE NOT NULL,
-password_hash TEXT NOT NULL,
-role user_role NOT NULL,
+role user_role NOT NULL DEFAULT 'student',
 student_id VARCHAR(20),
 department VARCHAR(50),
 phone VARCHAR(20),
@@ -28,7 +27,7 @@ created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 
 CREATE TABLE incident_reports (
 report_id SERIAL PRIMARY KEY,
-reporter_id INT REFERENCES users(user_id) ON DELETE SET NULL,
+reporter_id UUID REFERENCES users(id) ON DELETE SET NULL,
 is_anonymous BOOLEAN DEFAULT FALSE,
 category VARCHAR(50),
 title VARCHAR(100) NOT NULL,
@@ -47,7 +46,7 @@ created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 CREATE TABLE report_updates (
 update_id SERIAL PRIMARY KEY,
 report_id INT REFERENCES incident_reports(report_id) ON DELETE CASCADE,
-updated_by INT REFERENCES users(user_id) ON DELETE SET NULL,
+updated_by UUID REFERENCES users(id) ON DELETE SET NULL,
 update_text TEXT,
 new_status report_status,
 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -63,7 +62,7 @@ name VARCHAR(100) NOT NULL,
 phone VARCHAR(20),
 email VARCHAR(100),
 type contact_type NOT NULL,
-updated_by INT REFERENCES users(user_id) ON DELETE SET NULL,
+updated_by UUID REFERENCES users(id) ON DELETE SET NULL,
 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

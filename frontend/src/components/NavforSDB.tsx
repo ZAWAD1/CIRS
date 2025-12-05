@@ -30,7 +30,7 @@ const NavforSDB = () => {
         </Link>
 
         <Link
-          to="/emergency"
+          to="/student/emergency"
           className="text-gray-700 hover:text-blue-600 transition"
         >
           Emergency Contacts
