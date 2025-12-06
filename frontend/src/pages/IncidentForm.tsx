@@ -1,12 +1,10 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
+
 import { supabase } from "../supabaseClient";
 import Footer from "../components/Footer";
 import NavforIRF from "../components/NavforIRF";
 
-
-
-// -------- TYPE FOR FORM DATA --------
 interface FormDataType {
   title: string;
   category: string;
@@ -31,26 +29,35 @@ export default function IncidentFormPage() {
     image: null,
   });
 
-  // -------- HANDLE FILE UPLOAD --------
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     setFormData({ ...formData, image: file });
   };
 
-  // -------- FORM SUBMIT + SUPABASE INSERT --------
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
 
+    // 1️⃣ Get logged-in user
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      alert("You must be logged in to submit a report!");
+      setLoading(false);
+      return;
+    }
+
+    // 2️⃣ Upload Image (if exists)
     let image_url = null;
 
-    // -------------------- IMAGE UPLOAD --------------------
     if (formData.image) {
       const fileExt = formData.image.name.split(".").pop();
       const fileName = `${Date.now()}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
-        .from("incident_images") // bucket name
+        .from("incident_images")
         .upload(fileName, formData.image);
 
       if (uploadError) {
@@ -65,18 +72,18 @@ export default function IncidentFormPage() {
       }
     }
 
-    // -------------------- INSERT INTO SUPABASE --------------------
+    // 3️⃣ Insert Into Database (Fix — reporter_id added)
     const { error } = await supabase.from("incident_reports").insert([
       {
+        reporter_id: user.id,
         title: formData.title,
         category: formData.category,
-        incident_date: formData.date,
-        incident_time: formData.time,
+        date_of_incident: formData.date,
+        time_of_incident: formData.time,
         location: formData.location,
-        details: formData.details,
+        description: formData.details,
         image_url: image_url,
         is_anonymous: anonymous === "anonymous",
-        created_at: new Date(),
       },
     ]);
 
@@ -90,7 +97,6 @@ export default function IncidentFormPage() {
 
     alert("Incident Submitted Successfully ✔");
 
-    // RESET FORM
     setFormData({
       title: "",
       category: "",
@@ -104,9 +110,8 @@ export default function IncidentFormPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
-      <NavforIRF/>
+      <NavforIRF />
 
-      {/* ---------------- FORM BODY ---------------- */}
       <div className="max-w-4xl mx-auto bg-white p-8 shadow mt-10 rounded">
         <h2 className="text-xl font-bold mb-6">Report Details</h2>
 
@@ -114,7 +119,6 @@ export default function IncidentFormPage() {
           onSubmit={handleSubmit}
           className="grid grid-cols-1 md:grid-cols-2 gap-10"
         >
-          {/* LEFT SIDE */}
           <div className="space-y-4">
             <div>
               <label className="block text-sm mb-1">Incident Title</label>
@@ -151,7 +155,6 @@ export default function IncidentFormPage() {
                 <option>Fraud, deception, or theft</option>
                 <option>Eve teasing or ragging</option>
                 <option>Violence, abuse, or possession of weapons</option>
-
                 <option>Other</option>
               </select>
             </div>
@@ -185,7 +188,7 @@ export default function IncidentFormPage() {
             </div>
 
             <div>
-              <label className="block text-sm mb-1">Location</label>
+              <label className="block text-sm mb-1">Incident Location</label>
               <input
                 type="text"
                 className="w-full border px-3 py-2 rounded"
@@ -198,7 +201,6 @@ export default function IncidentFormPage() {
             </div>
           </div>
 
-          {/* RIGHT SIDE */}
           <div className="space-y-4">
             <div>
               <p className="font-medium text-sm">Stay Anonymous?</p>
@@ -259,8 +261,7 @@ export default function IncidentFormPage() {
         </form>
       </div>
 
-      {/* ---------------- FOOTER ---------------- */}
-<Footer/>
+      <Footer />
     </div>
   );
 }

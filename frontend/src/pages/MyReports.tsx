@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import Footer from "../components/Footer";
 import NavforMRF from "../components/NavforMRF";
@@ -6,26 +7,34 @@ import NavforMRF from "../components/NavforMRF";
 interface ReportType {
   report_id: number;
   title: string;
-  category: string;
   status: string;
-  created_at: string;
-  image_url: string | null;
   is_anonymous: boolean;
+  created_at: string;
 }
 
 export default function MyReportsPage() {
   const [reports, setReports] = useState<ReportType[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchReports();
   }, []);
 
-  // -------------------- FETCH REPORTS --------------------
   const fetchReports = async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
     const { data, error } = await supabase
       .from("incident_reports")
-      .select("*")
+      .select("report_id, title, status, is_anonymous, created_at")
+      .eq("reporter_id", user.id)
       .order("created_at", { ascending: false });
 
     if (!error && data) {
@@ -37,19 +46,15 @@ export default function MyReportsPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
+      <NavforMRF />
 
-      <NavforMRF/>
-
-      {/* ---------------- BODY ---------------- */}
       <div className="max-w-6xl mx-auto bg-white p-8 shadow mt-10 rounded mb-16">
-        <h2 className="text-xl font-bold mb-6">My Reports</h2>
+        <h2 className="text-xl font-bold mb-6">Your Report List</h2>
 
         {loading ? (
           <p className="text-center text-gray-500 py-10">Loading reports...</p>
         ) : reports.length === 0 ? (
-          <p className="text-center text-gray-500 py-10">
-            No reports found.
-          </p>
+          <p className="text-center text-gray-500 py-10">No reports found.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm border">
@@ -57,10 +62,9 @@ export default function MyReportsPage() {
                 <tr>
                   <th className="py-3 px-4 text-left">ID</th>
                   <th className="py-3 px-4 text-left">Title</th>
-                  <th className="py-3 px-4 text-left">Category</th>
                   <th className="py-3 px-4 text-left">Status</th>
-                  <th className="py-3 px-4 text-left">Image</th>
-                  <th className="py-3 px-4 text-left">Date</th>
+                  <th className="py-3 px-4 text-left">Anonymity</th>
+                  <th className="py-3 px-4 text-left">Details</th>
                 </tr>
               </thead>
 
@@ -71,10 +75,10 @@ export default function MyReportsPage() {
                     className="border-b hover:bg-gray-50 transition"
                   >
                     <td className="py-3 px-4">{r.report_id}</td>
+
                     <td className="py-3 px-4">
                       {r.is_anonymous ? "Anonymous Report" : r.title}
                     </td>
-                    <td className="py-3 px-4">{r.category}</td>
 
                     <td className="py-3 px-4">
                       <span
@@ -91,19 +95,20 @@ export default function MyReportsPage() {
                     </td>
 
                     <td className="py-3 px-4">
-                      {r.image_url ? (
-                        <img
-                          src={r.image_url}
-                          alt="incident"
-                          className="h-12 w-12 rounded object-cover border"
-                        />
+                      {r.is_anonymous ? (
+                        <span className="text-gray-600">Anonymous</span>
                       ) : (
-                        <span className="text-gray-400">No Image</span>
+                        <span className="text-gray-600">Not Anonymous</span>
                       )}
                     </td>
 
                     <td className="py-3 px-4">
-                      {r.created_at?.slice(0, 10)}
+                      <button
+                        className="px-3 py-1 text-blue-600 underline"
+                        onClick={() => navigate(`/report/${r.report_id}`)}
+                      >
+                        View
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -113,8 +118,7 @@ export default function MyReportsPage() {
         )}
       </div>
 
-      {/* ---------------- FOOTER ---------------- */}
-      <Footer/>
+      <Footer />
     </div>
   );
 }

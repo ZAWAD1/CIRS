@@ -4,42 +4,39 @@ import { supabase } from "../supabaseClient";
 import NavforMRF from "../components/NavforMRF";
 import Footer from "../components/Footer";
 
-interface Report {
+interface IncidentReport {
   report_id: number;
   title: string;
-  status: string;
-  is_anonymous: boolean;
-  created_at: string;
   category: string;
+  description: string;
+  location: string;
+  created_at: string;
   date_of_incident: string;
   time_of_incident: string;
-  location: string;
-  description: string;
-  image_url?: string;
+  status: string;
+  is_anonymous: boolean;
+  image_url: string | null;
+  reporter_id: string | null;
 }
 
 export default function ReportDetails() {
-  const { id } = useParams<{ id: string }>();
-  const [report, setReport] = useState<Report | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const { id } = useParams();
+  const [report, setReport] = useState<IncidentReport | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchReportDetails();
   }, []);
 
   const fetchReportDetails = async () => {
-    if (!id) return;
-
-    const numericId = Number(id);
-
     const { data, error } = await supabase
       .from("incident_reports")
       .select("*")
-      .eq("report_id", numericId)
+      .eq("report_id", id)
       .single();
 
-    if (!error && data) {
-      setReport(data as Report);
+    if (!error) {
+      setReport(data);
     }
 
     setLoading(false);
@@ -47,80 +44,116 @@ export default function ReportDetails() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-500 text-lg">Loading report...</p>
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <p className="text-gray-600 text-lg">Loading report details...</p>
       </div>
     );
   }
 
   if (!report) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
         <p className="text-red-600 text-lg">Report not found.</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-100">
+    <div className="min-h-screen flex flex-col bg-gray-50">
       <NavforMRF />
 
-      <div className="max-w-3xl mx-auto bg-white p-8 shadow mt-10 rounded mb-16">
-        <h2 className="text-2xl font-bold mb-4">
+      <div className="max-w-4xl mx-auto mt-10 mb-20 bg-white p-10 rounded-xl shadow-md border border-gray-200">
+        
+        {/* Title */}
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">
           {report.is_anonymous ? "Anonymous Report" : report.title}
-        </h2>
+        </h1>
 
-        <div className="text-sm text-gray-600 mb-6">
-          <p>
-            <strong>Status:</strong>{" "}
-            <span
-              className={`px-3 py-1 rounded text-white text-xs ${
+        {/* Report Meta */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mt-2">
+          <p className="text-gray-600">
+            <strong>Report ID:</strong> #{report.report_id}
+          </p>
+
+          <span
+            className={`mt-3 md:mt-0 px-4 py-1 w-fit rounded-full text-white text-sm font-medium
+              ${
                 report.status === "New"
                   ? "bg-blue-600"
                   : report.status === "Investigating"
                   ? "bg-yellow-600"
                   : "bg-green-600"
               }`}
-            >
-              {report.status}
-            </span>
-          </p>
-
-          <p className="mt-2">
-            <strong>Submitted On:</strong>{" "}
-            {new Date(report.created_at).toLocaleString()}
-          </p>
+          >
+            {report.status}
+          </span>
         </div>
 
-        <div className="space-y-4 text-gray-800">
-          <p><strong>Category:</strong> {report.category}</p>
-          <p><strong>Date of Incident:</strong> {report.date_of_incident}</p>
-          <p><strong>Time of Incident:</strong> {report.time_of_incident}</p>
-          <p><strong>Location:</strong> {report.location}</p>
-          <p>
-            <strong>Description:</strong>
-            <br />
-            {report.description}
-          </p>
+        <hr className="my-6" />
 
+        {/* Report Details */}
+        <div className="space-y-5 text-gray-800">
+
+          <div>
+            <p className="text-sm font-semibold text-gray-500">Category</p>
+            <p className="text-lg">{report.category}</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <p className="text-sm font-semibold text-gray-500">
+                Date of Incident
+              </p>
+              <p className="text-lg">{report.date_of_incident}</p>
+            </div>
+
+            <div>
+              <p className="text-sm font-semibold text-gray-500">
+                Time of Incident
+              </p>
+              <p className="text-lg">{report.time_of_incident}</p>
+            </div>
+          </div>
+
+          <div>
+            <p className="text-sm font-semibold text-gray-500">Location</p>
+            <p className="text-lg">{report.location}</p>
+          </div>
+
+          <div>
+            <p className="text-sm font-semibold text-gray-500">Submitted On</p>
+            <p className="text-lg">
+              {new Date(report.created_at).toLocaleString()}
+            </p>
+          </div>
+
+          <div>
+            <p className="text-sm font-semibold text-gray-500">Description</p>
+            <p className="text-lg leading-relaxed mt-1">{report.description}</p>
+          </div>
+
+          {/* Image Evidence */}
           {report.image_url && (
-            <div className="mt-4">
-              <strong>Image Evidence:</strong>
-              <br />
+            <div className="mt-6">
+              <p className="text-sm font-semibold text-gray-500 mb-2">
+                Image Evidence
+              </p>
               <img
                 src={report.image_url}
                 alt="Incident Evidence"
-                className="w-full mt-2 rounded shadow"
+                className="w-full rounded-xl shadow-sm border border-gray-300 hover:shadow-lg transition"
               />
             </div>
           )}
         </div>
 
+        {/* Back Button */}
         <button
           onClick={() => window.history.back()}
-          className="mt-8 px-5 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          className="mt-10 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 
+          transition font-medium shadow-sm"
         >
-          Back
+          ← Back to Reports
         </button>
       </div>
 
