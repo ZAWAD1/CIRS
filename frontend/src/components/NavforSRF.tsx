@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-const NavforSDB = () => {
+const NavforSRF = () => {
   return (
     <nav className="flex justify-between items-center p-4 border-b">
       <div className="flex items-center gap-2">
@@ -16,17 +16,16 @@ const NavforSDB = () => {
         </Link>
 
         <Link
+          to="/student/dashboard"
+          className="text-gray-700 hover:text-blue-600 transition"
+        >
+          Dashboard
+        </Link>
+        <Link
           to="/myreports"
           className="text-gray-700 hover:text-blue-600 transition"
         >
           My Reports
-        </Link>
-
-        <Link
-          to="/student/report-incident"
-          className="text-gray-700 hover:text-blue-600 transition"
-        >
-          Report Incident
         </Link>
 
         <Link
@@ -47,4 +46,4 @@ const NavforSDB = () => {
   );
 };
 
-export default NavforSDB;
+export default NavforSRF;

@@ -11,6 +11,7 @@ import AdminLogin from "./pages/AdminLogin";
 import StudentSignup from "./pages/StudentSignup";
 import StudentLogin from "./pages/StudentLogin";
 import AdminSignup from "./pages/AdminSignup";
+import StudentIncidentReport from "./pages/StudentIncidentReport";
 
 function App() {
   return (
@@ -27,6 +28,10 @@ function App() {
       <Route path="/signup/student" element={<StudentSignup />} />
       <Route path="/login/student" element={<StudentLogin />} />
       <Route path="/signup/admin" element={<AdminSignup />} />
+      <Route
+        path="/student/report-incident"
+        element={<StudentIncidentReport />}
+      />
     </Routes>
   );
 }
