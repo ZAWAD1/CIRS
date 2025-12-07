@@ -47,10 +47,9 @@ const StudentSignup = () => {
       return;
     }
 
-    // 2. Insert user profile into "users" table
     const { error: insertError } = await supabase.from("users").insert([
       {
-        id: userId, // <-- IMPORTANT!
+        id: userId,
         full_name: form.full_name,
         email: form.email,
         role: "student",
@@ -67,7 +66,6 @@ const StudentSignup = () => {
       return;
     }
 
-    // 3. Redirect to student dashboard
     navigate("/student/dashboard");
   };
 

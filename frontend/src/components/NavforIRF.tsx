@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
 
-const NavForSAR = () => {
+const NavforIRF = () => {
   return (
-    <nav className="flex justify-between items-center p-4 border-b">
+    <nav className="flex justify-between items-center p-4 bg-gray-100">
       <div className="flex items-center gap-2">
         <img src="/Ulab-logo.png" alt="ULAB Logo" className="h-10" />
       </div>
@@ -15,16 +15,16 @@ const NavForSAR = () => {
           Dashboard
         </Link>
         <Link
-          to="/report-incident"
+          to="/student/my-reports"
           className="text-gray-700 hover:text-blue-600 transition"
         >
-          Report Incident
+          My Report
         </Link>
         <Link
-          to="/emergency"
+          to="/student/emergency"
           className="text-gray-700 hover:text-blue-600 transition"
         >
-          Emergency Contact
+          Emergency Contacts
         </Link>
         <Link
           to="/logout"
@@ -37,4 +37,4 @@ const NavForSAR = () => {
   );
 };
 
-export default NavForSAR;
+export default NavforIRF;

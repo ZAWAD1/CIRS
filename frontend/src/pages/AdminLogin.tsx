@@ -15,7 +15,6 @@ const AdminLogin = () => {
     e.preventDefault();
     setError("");
 
-    // 1. Login with Supabase Auth
     const { data: authData, error: authError } =
       await supabase.auth.signInWithPassword({
         email,
@@ -33,7 +32,6 @@ const AdminLogin = () => {
       return;
     }
 
-    // 2. Fetch the user's role
     const { data: profile, error: profileError } = await supabase
       .from("users")
       .select("role")
@@ -45,15 +43,12 @@ const AdminLogin = () => {
       return;
     }
 
-    // 3. Check if user is admin
     if (profile.role !== "admin") {
-      // Kick them out immediately
       await supabase.auth.signOut();
       setError("You are not authorized to access admin panel");
       return;
     }
 
-    // 4. Everything OK → redirect to admin dashboard
     navigate("/admin/dashboard");
   };
 
