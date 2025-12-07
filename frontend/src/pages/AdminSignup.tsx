@@ -45,10 +45,9 @@ const AdminSignup = () => {
       return;
     }
 
-    // 2. Insert admin profile into users table
     const { error: insertError } = await supabase.from("users").insert([
       {
-        id: userId, // auth user ID
+        id: userId,
         full_name: form.full_name,
         email: form.email,
         role: "admin",
@@ -63,7 +62,6 @@ const AdminSignup = () => {
       return;
     }
 
-    // 3. Redirect to admin dashboard
     navigate("/admin/dashboard");
   };
 

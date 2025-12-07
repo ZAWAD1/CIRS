@@ -63,7 +63,6 @@ export default function ReportDetails() {
       <NavforMRF />
 
       <div className="max-w-4xl mx-auto mt-10 mb-20 bg-white p-10 rounded-xl shadow-md border border-gray-200">
-        
         {/* Title */}
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
           {report.is_anonymous ? "Anonymous Report" : report.title}
@@ -91,9 +90,7 @@ export default function ReportDetails() {
 
         <hr className="my-6" />
 
-        {/* Report Details */}
         <div className="space-y-5 text-gray-800">
-
           <div>
             <p className="text-sm font-semibold text-gray-500">Category</p>
             <p className="text-lg">{report.category}</p>
@@ -132,7 +129,6 @@ export default function ReportDetails() {
             <p className="text-lg leading-relaxed mt-1">{report.description}</p>
           </div>
 
-          {/* Image Evidence */}
           {report.image_url && (
             <div className="mt-6">
               <p className="text-sm font-semibold text-gray-500 mb-2">
@@ -147,7 +143,6 @@ export default function ReportDetails() {
           )}
         </div>
 
-        {/* Back Button */}
         <button
           onClick={() => window.history.back()}
           className="mt-10 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 

@@ -23,7 +23,7 @@ const NavforSDB = () => {
         </Link>
 
         <Link
-          to="/incident"
+          to="/report-incident"
           className="text-gray-700 hover:text-blue-600 transition"
         >
           Report Incident
@@ -37,7 +37,7 @@ const NavforSDB = () => {
         </Link>
 
         <Link
-          to="/"
+          to="/logout"
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
         >
           LOGOUT

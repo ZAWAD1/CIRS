@@ -8,16 +8,28 @@ const NavforIRF = () => {
       </div>
 
       <div className="flex items-center gap-4">
-        <Link to="/student/dashboard" className="text-gray-700 hover:text-blue-600 transition">
+        <Link
+          to="/student/dashboard"
+          className="text-gray-700 hover:text-blue-600 transition"
+        >
           Dashboard
         </Link>
-        <Link to="/student/my-reports" className="text-gray-700 hover:text-blue-600 transition">
+        <Link
+          to="/student/my-reports"
+          className="text-gray-700 hover:text-blue-600 transition"
+        >
           My Report
         </Link>
-        <Link to="/student/emergency" className="text-gray-700 hover:text-blue-600 transition">
+        <Link
+          to="/student/emergency"
+          className="text-gray-700 hover:text-blue-600 transition"
+        >
           Emergency Contacts
         </Link>
-        <Link to="/" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+        <Link
+          to="/logout"
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+        >
           LOGOUT
         </Link>
       </div>

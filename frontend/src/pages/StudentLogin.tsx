@@ -15,7 +15,6 @@ const StudentLogin = () => {
     e.preventDefault();
     setError("");
 
-    // 1. Login
     const { data, error: loginError } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -32,7 +31,6 @@ const StudentLogin = () => {
       return;
     }
 
-    // 2. Fetch the student's profile from your 'users' table
     const { data: profile, error: profileError } = await supabase
       .from("users")
       .select("role")
@@ -44,13 +42,11 @@ const StudentLogin = () => {
       return;
     }
 
-    // 3. Block if not student
     if (profile.role !== "student") {
       setError("This login is only for students.");
       return;
     }
 
-    // 4. Redirect to student dashboard
     navigate("/student/dashboard");
   };
 

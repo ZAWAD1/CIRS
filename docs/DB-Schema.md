@@ -1,87 +1,62 @@
--- ===========================================================
--- ENUM TYPES
--- ===========================================================
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
 
-CREATE TYPE user_role AS ENUM ('student', 'admin');
-CREATE TYPE report_status AS ENUM ('New', 'Investigating', 'Resolved');
-CREATE TYPE contact_type AS ENUM ('Security', 'Counseling', 'Admin', 'Medical');
-
--- ===========================================================
--- USERS PROFILE TABLE (LINKED TO SUPABASE AUTH)
--- ===========================================================
-
-CREATE TABLE users (
-id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-full_name VARCHAR(100) NOT NULL,
-email VARCHAR(100) UNIQUE NOT NULL,
-role user_role NOT NULL DEFAULT 'student',
-student_id VARCHAR(20),
-department VARCHAR(50),
-phone VARCHAR(20),
-created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE public.attachments (
+attachment_id integer NOT NULL DEFAULT nextval('attachments_attachment_id_seq'::regclass),
+report_id integer,
+file_url text NOT NULL,
+file_type character varying,
+uploaded_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+CONSTRAINT attachments_pkey PRIMARY KEY (attachment_id),
+CONSTRAINT attachments_report_id_fkey FOREIGN KEY (report_id) REFERENCES public.incident_reports(report_id)
 );
-
--- ===========================================================
--- INCIDENT REPORTS TABLE
--- ===========================================================
-
-CREATE TABLE incident_reports (
-report_id SERIAL PRIMARY KEY,
-reporter_id UUID REFERENCES users(id) ON DELETE SET NULL,
-is_anonymous BOOLEAN DEFAULT FALSE,
-category VARCHAR(50),
-title VARCHAR(100) NOT NULL,
-description TEXT NOT NULL,
-date_of_incident DATE,
-time_of_incident TIME,
-location VARCHAR(150),
-status report_status DEFAULT 'New',
-created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE public.emergency_contacts (
+contact_id integer NOT NULL DEFAULT nextval('emergency_contacts_contact_id_seq'::regclass),
+name character varying NOT NULL,
+phone character varying,
+email character varying,
+type USER-DEFINED NOT NULL,
+updated_by uuid,
+updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+CONSTRAINT emergency_contacts_pkey PRIMARY KEY (contact_id),
+CONSTRAINT emergency_contacts_updated_by_fkey FOREIGN KEY (updated_by) REFERENCES public.users(id)
 );
-
--- ===========================================================
--- REPORT UPDATES TABLE
--- ===========================================================
-
-CREATE TABLE report_updates (
-update_id SERIAL PRIMARY KEY,
-report_id INT REFERENCES incident_reports(report_id) ON DELETE CASCADE,
-updated_by UUID REFERENCES users(id) ON DELETE SET NULL,
-update_text TEXT,
-new_status report_status,
-updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE public.incident_reports (
+report_id integer NOT NULL DEFAULT nextval('incident_reports_report_id_seq'::regclass),
+reporter_id uuid,
+is_anonymous boolean DEFAULT false,
+category character varying,
+title character varying NOT NULL,
+description text NOT NULL,
+date_of_incident date,
+time_of_incident time without time zone,
+location character varying,
+status USER-DEFINED DEFAULT 'New'::report_status,
+created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+image_url text,
+CONSTRAINT incident_reports_pkey PRIMARY KEY (report_id),
+CONSTRAINT incident_reports_reporter_id_fkey FOREIGN KEY (reporter_id) REFERENCES public.users(id)
 );
-
--- ===========================================================
--- EMERGENCY CONTACTS TABLE
--- ===========================================================
-
-CREATE TABLE emergency_contacts (
-contact_id SERIAL PRIMARY KEY,
-name VARCHAR(100) NOT NULL,
-phone VARCHAR(20),
-email VARCHAR(100),
-type contact_type NOT NULL,
-updated_by UUID REFERENCES users(id) ON DELETE SET NULL,
-updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE public.report_updates (
+update_id integer NOT NULL DEFAULT nextval('report_updates_update_id_seq'::regclass),
+report_id integer,
+updated_by uuid,
+update_text text,
+new_status USER-DEFINED,
+updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+CONSTRAINT report_updates_pkey PRIMARY KEY (update_id),
+CONSTRAINT report_updates_report_id_fkey FOREIGN KEY (report_id) REFERENCES public.incident_reports(report_id),
+CONSTRAINT report_updates_updated_by_fkey FOREIGN KEY (updated_by) REFERENCES public.users(id)
 );
-
--- ===========================================================
--- ATTACHMENTS TABLE
--- ===========================================================
-
-CREATE TABLE attachments (
-attachment_id SERIAL PRIMARY KEY,
-report_id INT REFERENCES incident_reports(report_id) ON DELETE CASCADE,
-file_url TEXT NOT NULL,
-file_type VARCHAR(20),
-uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE public.users (
+id uuid NOT NULL,
+full_name character varying NOT NULL,
+email character varying NOT NULL UNIQUE,
+role USER-DEFINED NOT NULL DEFAULT 'student'::user_role,
+student_id character varying,
+department character varying,
+phone character varying,
+created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+CONSTRAINT users_pkey PRIMARY KEY (id),
+CONSTRAINT users_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id)
 );
-
--- ===========================================================
--- INDEXES FOR PERFORMANCE
--- ===========================================================
-
-CREATE INDEX idx_incident_reports_status ON incident_reports(status);
-CREATE INDEX idx_incident_reports_reporter_id ON incident_reports(reporter_id);
-CREATE INDEX idx_attachments_report_id ON attachments(report_id);

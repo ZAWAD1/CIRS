@@ -38,7 +38,6 @@ export default function IncidentFormPage() {
     e.preventDefault();
     setLoading(true);
 
-    // 1️⃣ Get logged-in user
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -49,7 +48,6 @@ export default function IncidentFormPage() {
       return;
     }
 
-    // 2️⃣ Upload Image (if exists)
     let image_url = null;
 
     if (formData.image) {
@@ -72,7 +70,6 @@ export default function IncidentFormPage() {
       }
     }
 
-    // 3️⃣ Insert Into Database (Fix — reporter_id added)
     const { error } = await supabase.from("incident_reports").insert([
       {
         reporter_id: user.id,
