@@ -76,8 +76,9 @@ export default function MyReportsPage() {
                   >
                     <td className="py-3 px-4">{r.report_id}</td>
 
+                    {/* FIXED TITLE */}
                     <td className="py-3 px-4">
-                      {r.is_anonymous ? "Anonymous Report" : r.title}
+                      {r.title}
                     </td>
 
                     <td className="py-3 px-4">
