@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-const Navbar = () => {
+const NavforSSU = () => {
   return (
     <nav className="flex justify-between items-center p-4 border-b">
       <div className="flex items-center gap-2">
@@ -8,12 +8,6 @@ const Navbar = () => {
       </div>
 
       <div className="flex items-center gap-4">
-        <Link
-          to="/home-emergency"
-          className="text-gray-700 hover:text-blue-600 transition"
-        >
-          Emergency Contacts
-        </Link>
         <Link
           to="/roles"
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
@@ -25,4 +19,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default NavforSSU;
