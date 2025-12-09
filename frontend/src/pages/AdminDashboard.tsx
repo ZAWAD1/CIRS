@@ -24,6 +24,7 @@ const AdminDashboard = () => {
   const [categoryFilter, setCategoryFilter] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [stats, setStats] = useState({ total: 0, unresolved: 0, investigating: 0, resolved: 0 });
+  
   const [expandedReportIds, setExpandedReportIds] = useState<Set<number>>(new Set());
 
   const fetchData = async () => {
@@ -33,8 +34,7 @@ const AdminDashboard = () => {
       .from('incident_reports')
       .select(`
         *,
-        users (full_name, student_id, department, phone),
-        attachments (file_url, file_type)
+        users (full_name, student_id, department, phone)
       `)
       .order('created_at', { ascending: false });
 
@@ -46,18 +46,19 @@ const AdminDashboard = () => {
     if (error) {
       console.error('Error fetching reports:', error);
     } else {
+      console.log("Reports Loaded:", data); // Check console to see if image_url is there
       setReports(data as unknown as IncidentReport[]);
     }
 
+    // Stats Logic
     const { data: allReports } = await supabase.from('incident_reports').select('status');
     if (allReports) {
-      const statsCount = {
+      setStats({
         total: allReports.length,
         unresolved: allReports.filter(r => r.status === 'New').length,
         investigating: allReports.filter(r => r.status === 'Investigating').length,
         resolved: allReports.filter(r => r.status === 'Resolved').length,
-      };
-      setStats(statsCount);
+      });
     }
 
     setLoading(false);
@@ -98,6 +99,7 @@ const AdminDashboard = () => {
 
       <div className="flex-grow container mx-auto px-4 py-8">
         
+        {/* STATS CARDS */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <StatCard title="Total Reports" count={stats.total} />
           <StatCard title="Unresolved" count={stats.unresolved} />
@@ -105,6 +107,7 @@ const AdminDashboard = () => {
           <StatCard title="Resolved" count={stats.resolved} />
         </div>
 
+        {/* FILTERS */}
         <div className="bg-white p-4 rounded-lg shadow-sm mb-6 flex flex-col md:flex-row gap-4 items-center justify-between">
           <div className="flex gap-4 w-full md:w-auto">
             <select 
@@ -133,6 +136,7 @@ const AdminDashboard = () => {
           </button>
         </div>
 
+        {/* REPORTS LIST */}
         <div className="space-y-6">
           {loading ? (
             <p className="text-center text-gray-500">Loading reports...</p>
@@ -143,10 +147,14 @@ const AdminDashboard = () => {
           ) : (
             reports.map((report) => {
               const isExpanded = expandedReportIds.has(report.report_id);
+              
+              // Logic: Check word count AND check if image_url exists
               const wordCount = getWordCount(report.description);
               const isLong = wordCount > 20;
-              const hasImages = report.attachments && report.attachments.length > 0;
+              const hasImage = !!report.image_url; // True if image_url is not null/empty
               
+              const showButton = isLong || hasImage;
+
               const displayedText = (isLong && !isExpanded)
                 ? report.description.split(/\s+/).slice(0, 20).join(" ") + "..."
                 : report.description;
@@ -158,7 +166,6 @@ const AdminDashboard = () => {
                       <h3 className="font-bold text-lg text-gray-800">
                         {report.is_anonymous ? "Anonymous User" : report.users?.full_name || "Unknown User"}
                       </h3>
-                      
                       {!report.is_anonymous && report.users && (
                         <p className="text-sm text-gray-600 font-medium mt-1">
                           ID: {report.users.student_id || 'N/A'} 
@@ -166,7 +173,6 @@ const AdminDashboard = () => {
                           {report.users.phone && ` • ${report.users.phone}`}
                         </p>
                       )}
-
                       <p className="text-xs text-gray-500 mt-1">
                         {new Date(report.created_at).toLocaleDateString()} • {report.category}
                       </p>
@@ -188,17 +194,23 @@ const AdminDashboard = () => {
 
                   <p className="text-gray-700 mb-4 whitespace-pre-wrap">{displayedText}</p>
 
-                  {isExpanded && hasImages && (
-                    <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-2">
-                      {report.attachments.map((att, idx) => (
-                        <a key={idx} href={att.file_url} target="_blank" rel="noopener noreferrer">
-                          <img src={att.file_url} alt="Evidence" className="w-full h-32 object-cover rounded-lg border hover:opacity-90 transition" />
-                        </a>
-                      ))}
+                  {isExpanded && hasImage && (
+                    <div className="mt-4">
+                      <a href={report.image_url!} target="_blank" rel="noopener noreferrer">
+                        <img 
+                          src={report.image_url!} 
+                          alt="Evidence" 
+                          className="max-w-full md:max-w-md h-auto max-h-96 object-contain rounded-lg border bg-gray-50 hover:opacity-90 transition"
+                          onError={(e) => {
+                            console.error("Image failed:", report.image_url);
+                            (e.target as HTMLImageElement).style.display = 'none'; 
+                          }}
+                        />
+                      </a>
                     </div>
                   )}
 
-                  {(isLong || hasImages) && (
+                  {showButton && (
                     <button 
                       onClick={() => toggleExpand(report.report_id)}
                       className="mt-2 text-sm font-semibold bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-md transition"
