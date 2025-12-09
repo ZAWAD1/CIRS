@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-const NavforEC = () => {
+const NavforSLI = () => {
   return (
     <nav className="flex justify-between items-center p-4 border-b">
       <div className="flex items-center gap-2">
@@ -9,28 +9,14 @@ const NavforEC = () => {
 
       <div className="flex items-center gap-4">
         <Link
-          to="/student/dashboard"
-          className="text-gray-700 hover:text-blue-600 transition"
-        >
-          Dashboard
-        </Link>
-
-        <Link
-          to="/incident"
-          className="text-gray-700 hover:text-blue-600 transition"
-        >
-          Report Incident
-        </Link>
-
-        <Link
-          to="/logout"
+          to="/signup/student"
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
         >
-          LOGOUT
+          SIGN UP
         </Link>
       </div>
     </nav>
   );
 };
 
-export default NavforEC;
+export default NavforSLI;

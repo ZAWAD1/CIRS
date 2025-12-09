@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
-import { type IncidentReport } from '../types';
+import type { IncidentReport } from '../types';
 import Navbar from '../components/NavbarForAdmin';
 import Footer from '../components/Footer';
 
-// Categories strictly from your list
 const CATEGORIES = [
   "Bullying or harassment",
   "Sexual harassment or misconduct",
@@ -22,33 +21,24 @@ const AdminDashboard = () => {
   const [reports, setReports] = useState<IncidentReport[]>([]);
   const [loading, setLoading] = useState(true);
   
-  // Filters
   const [categoryFilter, setCategoryFilter] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('');
-
-  // Stats State
   const [stats, setStats] = useState({ total: 0, unresolved: 0, investigating: 0, resolved: 0 });
-
-  // UI State for "View Details" (Store IDs of expanded reports)
+  
   const [expandedReportIds, setExpandedReportIds] = useState<Set<number>>(new Set());
 
-  // --- Fetch Data ---
   const fetchData = async () => {
     setLoading(true);
     
-    // 1. Base Query with Joins
     let query = supabase
       .from('incident_reports')
       .select(`
         *,
-        users (full_name, student_id),
-        attachments (file_url, file_type)
+        users (full_name, student_id, department, phone)
       `)
-      .order('created_at', { ascending: false }); // Latest first
+      .order('created_at', { ascending: false });
 
-    // 2. Apply Filters if selected
     if (categoryFilter) query = query.eq('category', categoryFilter);
-    // Note: Map UI "Unresolved" to DB "New" if needed, or keep consistent
     if (statusFilter) query = query.eq('status', statusFilter === 'Unresolved' ? 'New' : statusFilter);
 
     const { data, error } = await query;
@@ -56,55 +46,42 @@ const AdminDashboard = () => {
     if (error) {
       console.error('Error fetching reports:', error);
     } else {
+      console.log("Reports Loaded:", data); // Check console to see if image_url is there
       setReports(data as unknown as IncidentReport[]);
     }
 
-    // 3. Fetch Stats (Independent of filters, usually stats show global numbers)
-    // We can do this with a separate simple query to avoid complex counting on client side
+    // Stats Logic
     const { data: allReports } = await supabase.from('incident_reports').select('status');
-    
     if (allReports) {
-      const statsCount = {
+      setStats({
         total: allReports.length,
-        unresolved: allReports.filter(r => r.status === 'New').length, // Assuming 'New' = Unresolved
+        unresolved: allReports.filter(r => r.status === 'New').length,
         investigating: allReports.filter(r => r.status === 'Investigating').length,
         resolved: allReports.filter(r => r.status === 'Resolved').length,
-      };
-      setStats(statsCount);
+      });
     }
 
     setLoading(false);
   };
 
-  // Run fetch when filters change or on mount
   useEffect(() => {
     fetchData();
   }, [categoryFilter, statusFilter]);
 
-  // --- Handlers ---
-
   const handleStatusChange = async (reportId: number, newStatus: string) => {
-    // 1. Update in DB
     const { error } = await supabase
       .from('incident_reports')
-      .update({ status: newStatus === 'Unresolved' ? 'New' : newStatus }) // Handle mapping
+      .update({ status: newStatus === 'Unresolved' ? 'New' : newStatus })
       .eq('report_id', reportId);
 
-    if (error) {
-      alert("Failed to update status");
-    } else {
-      // 2. Refresh data to show updates
-      fetchData();
-    }
+    if (error) alert("Failed to update status");
+    else fetchData();
   };
 
   const toggleExpand = (id: number) => {
     const newSet = new Set(expandedReportIds);
-    if (newSet.has(id)) {
-      newSet.delete(id);
-    } else {
-      newSet.add(id);
-    }
+    if (newSet.has(id)) newSet.delete(id);
+    else newSet.add(id);
     setExpandedReportIds(newSet);
   };
 
@@ -114,8 +91,7 @@ const AdminDashboard = () => {
     fetchData();
   };
 
-  // Helper to count words
-  const getWordCount = (text: string) => text.trim().split(/\s+/).length;
+  const getWordCount = (text: string) => text ? text.trim().split(/\s+/).length : 0;
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
@@ -123,7 +99,7 @@ const AdminDashboard = () => {
 
       <div className="flex-grow container mx-auto px-4 py-8">
         
-        {/* --- STATS CARDS --- */}
+        {/* STATS CARDS */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <StatCard title="Total Reports" count={stats.total} />
           <StatCard title="Unresolved" count={stats.unresolved} />
@@ -131,10 +107,9 @@ const AdminDashboard = () => {
           <StatCard title="Resolved" count={stats.resolved} />
         </div>
 
-        {/* --- FILTERS --- */}
+        {/* FILTERS */}
         <div className="bg-white p-4 rounded-lg shadow-sm mb-6 flex flex-col md:flex-row gap-4 items-center justify-between">
           <div className="flex gap-4 w-full md:w-auto">
-            {/* Category Dropdown */}
             <select 
               className="border p-2 rounded-md bg-gray-100 w-full md:w-64"
               value={categoryFilter}
@@ -144,7 +119,6 @@ const AdminDashboard = () => {
               {CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
             </select>
 
-            {/* Status Dropdown */}
             <select 
               className="border p-2 rounded-md bg-gray-100 w-full md:w-48"
               value={statusFilter}
@@ -157,15 +131,12 @@ const AdminDashboard = () => {
             </select>
           </div>
 
-          <button 
-            onClick={handleRefresh}
-            className="px-6 py-2 bg-gray-200 hover:bg-gray-300 rounded-md transition"
-          >
+          <button onClick={handleRefresh} className="px-6 py-2 bg-gray-200 hover:bg-gray-300 rounded-md transition">
             Refresh
           </button>
         </div>
 
-        {/* --- REPORTS LIST --- */}
+        {/* REPORTS LIST */}
         <div className="space-y-6">
           {loading ? (
             <p className="text-center text-gray-500">Loading reports...</p>
@@ -176,11 +147,14 @@ const AdminDashboard = () => {
           ) : (
             reports.map((report) => {
               const isExpanded = expandedReportIds.has(report.report_id);
+              
+              // Logic: Check word count AND check if image_url exists
               const wordCount = getWordCount(report.description);
               const isLong = wordCount > 20;
-              const hasImages = report.attachments && report.attachments.length > 0;
+              const hasImage = !!report.image_url; // True if image_url is not null/empty
               
-              // Formatting the description
+              const showButton = isLong || hasImage;
+
               const displayedText = (isLong && !isExpanded)
                 ? report.description.split(/\s+/).slice(0, 20).join(" ") + "..."
                 : report.description;
@@ -192,12 +166,18 @@ const AdminDashboard = () => {
                       <h3 className="font-bold text-lg text-gray-800">
                         {report.is_anonymous ? "Anonymous User" : report.users?.full_name || "Unknown User"}
                       </h3>
-                      <p className="text-xs text-gray-500">
+                      {!report.is_anonymous && report.users && (
+                        <p className="text-sm text-gray-600 font-medium mt-1">
+                          ID: {report.users.student_id || 'N/A'} 
+                          {report.users.department && ` • Dept: ${report.users.department}`}
+                          {report.users.phone && ` • ${report.users.phone}`}
+                        </p>
+                      )}
+                      <p className="text-xs text-gray-500 mt-1">
                         {new Date(report.created_at).toLocaleDateString()} • {report.category}
                       </p>
                     </div>
                     
-                    {/* Status Changer for Admin */}
                     <select 
                       value={report.status === 'New' ? 'Unresolved' : report.status}
                       onChange={(e) => handleStatusChange(report.report_id, e.target.value)}
@@ -214,23 +194,23 @@ const AdminDashboard = () => {
 
                   <p className="text-gray-700 mb-4 whitespace-pre-wrap">{displayedText}</p>
 
-                  {/* Images Section (Only visible if expanded) */}
-                  {isExpanded && hasImages && (
-                    <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-2">
-                      {report.attachments.map((att, idx) => (
-                        <a key={idx} href={att.file_url} target="_blank" rel="noopener noreferrer">
-                          <img 
-                            src={att.file_url} 
-                            alt="Evidence" 
-                            className="w-full h-32 object-cover rounded-lg border hover:opacity-90 transition"
-                          />
-                        </a>
-                      ))}
+                  {isExpanded && hasImage && (
+                    <div className="mt-4">
+                      <a href={report.image_url!} target="_blank" rel="noopener noreferrer">
+                        <img 
+                          src={report.image_url!} 
+                          alt="Evidence" 
+                          className="max-w-full md:max-w-md h-auto max-h-96 object-contain rounded-lg border bg-gray-50 hover:opacity-90 transition"
+                          onError={(e) => {
+                            console.error("Image failed:", report.image_url);
+                            (e.target as HTMLImageElement).style.display = 'none'; 
+                          }}
+                        />
+                      </a>
                     </div>
                   )}
 
-                  {/* View Details Button Logic */}
-                  {(isLong || hasImages) && (
+                  {showButton && (
                     <button 
                       onClick={() => toggleExpand(report.report_id)}
                       className="mt-2 text-sm font-semibold bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-md transition"
@@ -249,7 +229,6 @@ const AdminDashboard = () => {
   );
 };
 
-// Simple Sub-component for the top cards
 const StatCard = ({ title, count }: { title: string, count: number }) => (
   <div className="bg-white p-6 rounded-lg shadow-md border border-gray-100 flex flex-col justify-center h-32">
     <h3 className="text-gray-500 font-medium text-sm mb-1">{title}</h3>
