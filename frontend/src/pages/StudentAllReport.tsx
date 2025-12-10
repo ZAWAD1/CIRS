@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { supabase } from "../supabaseClient";
 import Footer from "../components/Footer";
 import NavForSAR from "../components/NavForSAR";
 
@@ -15,15 +14,17 @@ const StudentAllReport = () => {
 
   useEffect(() => {
     const fetchReports = async () => {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from("incident_reports")
-        .select("report_id, title, status")
-        .order("report_id", { ascending: false });
-
-      if (error) console.error("Error fetching reports:", error);
-      else setReports(data || []);
-      setLoading(false);
+      try {
+        setLoading(true);
+        const res = await fetch("http://localhost:3001/reports");
+        const data = await res.json();
+        setReports(data || []);
+      } catch (error) {
+        console.error("Error fetching:", error);
+        setReports([]);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchReports();
