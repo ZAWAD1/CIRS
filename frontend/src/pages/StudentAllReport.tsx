@@ -16,7 +16,7 @@ const StudentAllReport = () => {
     const fetchReports = async () => {
       try {
         setLoading(true);
-        const res = await fetch("http://localhost:3001/reports");
+        const res = await fetch("https://cirs-59j6.onrender.com");
         const data = await res.json();
         setReports(data || []);
       } catch (error) {
