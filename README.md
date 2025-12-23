@@ -7,7 +7,7 @@ CIRS is a secure and user-friendly web platform that enables students and staff 
 ## 🚀 Features
 
 - 🔒 **Anonymous or Named Reporting**
-- 📸 **Attach Photos, Videos, or Documents**
+- 📸 **Attach Photos**
 - 📍 **Record Date, Time, and Location**
 - 🕓 **Check Report Status (New, Investigating, Resolved)**
 - 📊 **Admin Dashboard for Managing Reports**
@@ -20,7 +20,8 @@ CIRS is a secure and user-friendly web platform that enables students and staff 
 
 | Layer              | Technology            |
 | ------------------ | --------------------- |
-| Front & Backend    | React.js, TailwindCSS |
+| Frontend           | React.js, TailwindCSS |
+| Backend            | Next.js               |
 | Database           | Supabase              |
 | Hosting            | Vercel / Render       |
 | Version Control    | Git + GitHub          |
@@ -35,7 +36,6 @@ Main Tables:
 
 - `users`
 - `incident_reports`
-- `report_updates`
 - `attachments`
 - `emergency_contacts`
 
@@ -53,11 +53,12 @@ Main Tables:
 1. **Home Page**
 2. **Role Selection**
 3. **Student Login / Admin Login**
-4. **Student Dashboard**
-5. **Student Incident Report Page**
-6. **Student Status View Page**
-7. **Admin Dashboard**
-8. **Admin Edit Emergency Contact Page**
-9. **Student All Report View**
+4. **Student Signup / Admin Signup**
+5. **Student Dashboard**
+6. **Student Incident Report Page**
+7. **Student Status View Page**
+8. **Admin Dashboard**
+9. **Admin Edit Emergency Contact Page**
+10. **Student All Report View**
 
 ---
